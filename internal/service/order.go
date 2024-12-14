@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"dockertest/internal/models"
+	"dockertest/pkg/logger"
 )
 
 type OrderRepository interface {
@@ -11,12 +12,14 @@ type OrderRepository interface {
 }
 
 type OrderService struct {
+	Logger logger.Logger
 	Repo OrderRepository
 }
 
-func NewOrderService(repo OrderRepository) *OrderService {
+func NewOrderService(repo OrderRepository, logger logger.Logger) *OrderService {
 	return &OrderService{
 		Repo: repo,
+		Logger: logger,
 	}
 }
 

@@ -40,10 +40,10 @@ func main() {
 	if cfg == nil {
 		panic("Fail ot load config")
 	}
+	//mainLogger.Info()
 	//comeback later
 
 	// router := mux.NewRouter()
-	// logger := setupLogger()
 	// router.Use(loggingMiddleware(logger))
 	// fmt.Println("Hello, world")
 	// router.HandleFunc("/", messageHandler)
@@ -60,8 +60,9 @@ func main() {
 		fmt.Println(err)
 		panic(err)
 	}
+	fmt.Println("tuta")
 	orderRepository := repository.NewOrderRepository(db.Database)
-	srv := service.NewOrderService(orderRepository)
+	srv := service.NewOrderService(orderRepository, mainLogger)
 	srv.CreateNewOrder(ctx, generateRandomOrder())
 	//comeback later
 	//generateRandomOrder()
