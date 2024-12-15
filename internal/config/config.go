@@ -2,12 +2,13 @@ package config
 
 import (
 	"dockertest/pkg/db"
-	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
 	postgres.Config
+	ConsumerConfig
+	AppPort int `env:"APP_PORT" env-default:"8080"`
 }
 
 type ConsumerConfig struct {
@@ -16,13 +17,12 @@ type ConsumerConfig struct {
 	Topic string `env:"KAFKA_TOPIC" env-default:"test"`
 }
 
-func New() *Config {
+func New() (*Config, error){
 	config := Config{}
 	err := cleanenv.ReadConfig("./configs/local.env", &config)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 
-	return &config
+	return &config, nil
 }

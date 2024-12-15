@@ -6,17 +6,21 @@ import (
 	"dockertest/internal/models"
 	"dockertest/internal/repository"
 	"dockertest/internal/service"
-	"dockertest/pkg/db"
+	"dockertest/internal/transport/kafka"
+	postgres "dockertest/pkg/db"
 	"dockertest/pkg/logger"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"golang.org/x/exp/rand"
 )
 
@@ -31,17 +35,14 @@ func messageHandler(w http.ResponseWriter, rq *http.Request) {
 }
 
 func main() {
-	fmt.Println("POEHALI")
-	//comeback later
 	ctx := context.Background()
-	mainLogger := logger.New("WilberriesOrderService")
+	mainLogger := logger.New("WildberriesOrderService")
 	ctx = context.WithValue(ctx, logger.LoggerKey, mainLogger)
-	cfg := config.New()
+	cfg, err := config.New()
 	if cfg == nil {
-		panic("Fail ot load config")
+		mainLogger.Error(ctx, "Fail to load config", zap.Error(err))
+		panic("Fail to load config")
 	}
-	//mainLogger.Info()
-	//comeback later
 
 	// router := mux.NewRouter()
 	// router.Use(loggingMiddleware(logger))
@@ -53,33 +54,33 @@ func main() {
 	// 	panic("Fail to load config")
 	// }
 
-
-	//comeback later
 	db, err := postgres.New(cfg.Config)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		mainLogger.Error(ctx, "Fail to connect to database", zap.Error(err))
+		os.Exit(1)
 	}
-	fmt.Println("tuta")
 	orderRepository := repository.NewOrderRepository(db.Database)
 	srv := service.NewOrderService(orderRepository, mainLogger)
 	srv.CreateNewOrder(ctx, generateRandomOrder())
+
+	kafkaConsumer := kafka.NewReader(cfg.ConsumerConfig, srv.Process, mainLogger)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		kafkaConsumer.Consume(ctx)
+	}()
+
+	graceSh := make(chan os.Signal, 1)
+	signal.Notify(graceSh, syscall.SIGINT, syscall.SIGTERM)
+	wg.Wait()
+	<-graceSh
+	mainLogger.Info(ctx, "Server stopped")
 	//comeback later
 	//generateRandomOrder()
 	// type Hello struct {
 	// 	Field int `db:hello`
 	// }
-}
-
-func setupLogger() *zap.Logger {
-	config := zap.NewProductionConfig()
-	config.Level = zap.NewAtomicLevelAt(zapcore.InfoLevel)
-	logger, err := config.Build()
-	if err != nil {
-		fmt.Printf("Ошибка конфигурирования логгера: %s\n", err)
-	}
-
-	return logger
 }
 
 func loggingMiddleware(logger *zap.Logger) mux.MiddlewareFunc {
@@ -116,16 +117,16 @@ func generateRandomOrder() models.Order {
 			Email:   fmt.Sprintf("customer%d@example.com", rand.Intn(1000)),
 		},
 		Payment: models.Payment{
-			Transaction:  orderUID,
-			RequestId:    "",
-			Currency:     "RUB",
-			Provider:     "wbpay",
-			Amount:       float64(rand.Intn(10000)),
-			PaymentDateTime:    now.Unix(),
-			Bank:         "alpha",
-			DeliveryCost: float64(rand.Intn(1000)),
-			GoodsTotal:   float64(rand.Intn(9000)),
-			CustomFee:    0,
+			Transaction:     orderUID,
+			RequestId:       "",
+			Currency:        "RUB",
+			Provider:        "wbpay",
+			Amount:          float64(rand.Intn(10000)),
+			PaymentDateTime: now.Unix(),
+			Bank:            "alpha",
+			DeliveryCost:    float64(rand.Intn(1000)),
+			GoodsTotal:      float64(rand.Intn(9000)),
+			CustomFee:       0,
 		},
 		Items: []models.Item{
 			{

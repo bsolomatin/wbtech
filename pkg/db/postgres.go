@@ -11,7 +11,7 @@ import (
 type Config struct {
 	Username string `env:"POSTGRES_USER" env-default:"postgres"`
 	Password string `env:"POSTGRES_PASSWORD" env-default:"postgres"`
-	Host string `env:"POSTGRES_HOST" env-default:"localhost"`
+	Host string `env:"POSTGRES_HOST" env-default:"db"`
 	Port string `env:"POSTGRES_PORT" env-default:"5432"`
 	DbName string `env:"POSTGRES_DB" env-default:"postgres"`
 }
@@ -21,7 +21,7 @@ type Database struct {
 }
 
 func New(config Config) (*Database, error) {
-	dataSource := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable", config.Username, config.Password, "db", config.Port, config.DbName)
+	dataSource := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable", config.Username, config.Password, config.Host, config.Port, config.DbName)
 	db, err := sqlx.Connect("postgres", dataSource)
 	if err != nil {
 		log.Fatalln(err)
