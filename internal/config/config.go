@@ -8,7 +8,7 @@ import (
 type Config struct {
 	postgres.Config
 	ConsumerConfig
-	AppPort int `env:"APP_PORT" env-default:"8080"`
+	AppPort string `env:"APP_PORT" env-default:"8080"`
 }
 
 type ConsumerConfig struct {

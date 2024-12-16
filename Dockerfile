@@ -11,4 +11,7 @@ RUN go build -o myapp ./cmd/main/main.go
 
 FROM alpine AS runner
 COPY --from=builder /usr/local/src/myapp ./ 
+COPY templates ./templates
 CMD ["./myapp"]
+
+EXPOSE 8080

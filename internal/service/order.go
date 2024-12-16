@@ -6,6 +6,7 @@ import (
 	"dockertest/pkg/logger"
 	"encoding/json"
 	"fmt"
+	"regexp"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -28,15 +29,8 @@ func NewOrderService(repo OrderRepository, logger logger.Logger) *OrderService {
 }
 
 func (s *OrderService) CreateNewOrder(ctx context.Context, order models.Order) (*models.Order, error){
-	// if err := s.Validate(ctx, order); err != nil {
-	// 	return nil, fmt.Errorf("OrderService.CreateNewOrder: %s", err)
-	// }
 	return s.Repo.CreateNewOrder(ctx, order)
 }
-
-// func (s *OrderService) Validate(ctx context.Context, order models.Order) error {
-// 	return nil
-// }
 
 func (s *OrderService) FindByUid(ctx context.Context, orderUid string) (*models.Order, error) {
 	return s.Repo.FindByUid(ctx, orderUid)
@@ -45,11 +39,31 @@ func (s *OrderService) FindByUid(ctx context.Context, orderUid string) (*models.
 func (s *OrderService) Process(ctx context.Context, message kafka.Message) error {
 	data := models.Order{}
 	if err := json.Unmarshal(message.Value, &data); err != nil {
-		return fmt.Errorf("OrderService.Process: %s", err)
+		return fmt.Errorf("OrderService.Process: %w", err)
+	}
+	if err := Validate(data); err != nil {
+		return fmt.Errorf("OrderService.Process: %w", err)
 	}
 	_, err := s.CreateNewOrder(ctx, data)
 	if err != nil {
-		return fmt.Errorf("OrderService.Process: %s", err)
+		return fmt.Errorf("OrderService.Process: %w", err)
 	}
+	
 	return nil 
+}
+
+func Validate (order models.Order) error {
+	if order.OrderUid == "" {
+		return fmt.Errorf("orderUid is empty")
+	}
+	if !isValidEmail(order.Delivery.Email) {
+		return fmt.Errorf("invalid email")
+	}
+
+	return nil
+}
+
+func isValidEmail(email string) bool {
+    emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+    return emailRegex.MatchString(email)
 }

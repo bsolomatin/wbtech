@@ -7,9 +7,8 @@ import (
 	"dockertest/pkg/logger"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
-	"time"
-
 	"go.uber.org/zap"
 )
 
@@ -32,23 +31,11 @@ func NewOrderTransport(service OrderService, log logger.Logger) *OrderTransport 
 	}
 }
 
-func (t *OrderTransport) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	var payload models.Order
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		http.Error(w, "invalid request payload", http.StatusBadRequest)
-		t.logger.Error(r.Context(), "Fail to decode request", zap.Error(err))
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(payload)
-}
-
 func (t *OrderTransport) GetOrder(w http.ResponseWriter, r *http.Request) {
 	orderUid := r.URL.Query().Get("order_uid")
 	if orderUid == "" {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		t.logger.Error(r.Context(), "Fail to get order", zap.String("Order_uid", orderUid))
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		t.logger.Error(r.Context(), "Fail to get order", zap.String("Order_uid", orderUid), zap.Error(fmt.Errorf("order_uid is empty")))
 		return
 	}
 
@@ -61,15 +48,22 @@ func (t *OrderTransport) GetOrder(w http.ResponseWriter, r *http.Request) {
 	order, err := t.service.FindByUid(r.Context(), orderUid)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
-		t.logger.Error(r.Context(), fmt.Sprintf("Fail to get order by order_uid %s", orderUid), zap.Error(err))
+		t.logger.Error(r.Context(), "Fail to get order by order_uid", zap.String("Order_uid", orderUid), zap.Error(err))
 		return
 	}
 
-	t.cache.Add(*order, 15 * time.Second)
+	t.cache.Add(*order)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(order)
 }
 
-func Validate () error{
-	return nil
+func (t *OrderTransport) HomeTemplateHandler (w http.ResponseWriter, r *http.Request) {
+	temp, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		t.logger.Error(r.Context(), "Fail to parse template", zap.String("Template name", "index.html"), zap.Error(err))
+		return 
+	}
+
+	temp.Execute(w, models.Order{})
 }

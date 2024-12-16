@@ -9,12 +9,13 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 	go.uber.org/zap v1.27.0
-	golang.org/x/exp v0.0.0-20241210172134-14434422244c
 )
 
 require (
-	github.com/klauspost/compress v1.15.9 // indirect
-	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/pierrec/lz4/v4 v4.1.16 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
+	golang.org/x/net v0.29.0 // indirect
 )
 
 require (

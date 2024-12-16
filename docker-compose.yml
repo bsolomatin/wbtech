@@ -11,6 +11,7 @@ services:
       - ${APP_PORT}:${APP_PORT}
     volumes:
       - ./configs:/configs
+      - ./templates:/templates
     depends_on:
       - db
 
@@ -24,8 +25,6 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - ./init_db:/docker-entrypoint-initdb.d
     
   zookeeper1:
     image: confluentinc/cp-zookeeper:7.3.2
