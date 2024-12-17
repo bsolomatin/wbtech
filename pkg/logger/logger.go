@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	LoggerKey = "logger"
-	RequestId = "requestId"
+	LoggerKey   = "logger"
+	RequestId   = "requestId"
 	ServiceName = "service"
 )
 
@@ -20,7 +20,7 @@ type Logger interface {
 
 type logger struct {
 	serviceName string
-	logger *zap.Logger
+	logger      *zap.Logger
 }
 
 func (l *logger) Info(ctx context.Context, msg string, fields ...zapcore.Field) {
@@ -37,12 +37,12 @@ func New(serviceName string) Logger {
 	zapLogger, _ := zap.NewProduction()
 	defer zapLogger.Sync()
 	return &logger{
-		serviceName : serviceName,
-		logger: zapLogger,
+		serviceName: serviceName,
+		logger:      zapLogger,
 	}
 }
 
-func GetLoggerFromCtx (ctx context.Context) Logger {
+func GetLoggerFromCtx(ctx context.Context) Logger {
 	return ctx.Value(LoggerKey).(Logger)
 
 }

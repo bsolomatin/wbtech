@@ -14,9 +14,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
-	"syscall"
 	"time"
-
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 )
@@ -43,7 +41,7 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(loggingMiddleware(mainLogger))
 	router.HandleFunc("/", transp.HomeTemplateHandler).Methods("GET")
-	router.HandleFunc("/orders", transp.GetOrder).Methods("GET")
+	router.HandleFunc("/orders", transp.OrderTemplateHandler).Methods("GET")
 
 	kafkaConsumer := kafka.NewReader(cfg.ConsumerConfig, srv.Process, mainLogger)
 	wg := sync.WaitGroup{}
@@ -59,7 +57,7 @@ func main() {
 	}()
 
 	graceSh := make(chan os.Signal, 1)
-	signal.Notify(graceSh, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(graceSh, os.Interrupt)
 	wg.Wait()
 	<-graceSh
 

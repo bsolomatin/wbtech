@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о заказе</title>
+</head>
+<body>
+    {{if .Error}}
+        <h1>Ошибка</h1>
+        <p>{{.Error}}</p>
+    {{else}}
+        <h1>Информация о заказе</h1>
+        <p><strong>Order UID:</strong> {{.Order.OrderUid}}</p>
+        <p><strong>Track Number:</strong> {{.Order.TrackNumber}}</p>
+        <p><strong>Entry:</strong> {{.Order.Entry}}</p>
+        <p><strong>Locale:</strong> {{.Order.Locale}}</p>
+        <p><strong>Internal signature:</strong> {{.Order.InternalSignature}}</p>
+        <p><strong>Customer id:</strong> {{.Order.CustomerId}}</p>
+        <p><strong>Delivery service:</strong> {{.Order.DeliveryService}}</p>
+        <p><strong>Shard key:</strong> {{.Order.ShardKey}}</p>
+        <p><strong>Sm id:</strong> {{.Order.SmId}}</p>
+        <p><strong>Created date:</strong> {{.Order.CreatedDate}}</p>
+        <p><strong>Oof shard:</strong> {{.Order.OofShard}}</p>
+        <p><strong>Name:</strong> {{.Order.Delivery.Name}}</p>
+        <p><strong>Phone:</strong> {{.Order.Delivery.Phone}}</p>
+        <p><strong>Zip:</strong> {{.Order.Delivery.Zip}}</p>
+        <p><strong>City:</strong> {{.Order.Delivery.City}}</p>
+        <p><strong>Address:</strong> {{.Order.Delivery.Address}}</p>
+        <p><strong>Region:</strong> {{.Order.Delivery.Region}}</p>
+        <p><strong>Email:</strong> {{.Order.Delivery.Email}}</p>
+        <p><strong>Transaction:</strong> {{.Order.Payment.Transaction}}</p>
+        <p><strong>Request id:</strong> {{.Order.Payment.RequestId}}</p>
+        <p><strong>Currency:</strong> {{.Order.Payment.Currency}}</p>
+        <p><strong>Provider:</strong> {{.Order.Payment.Provider}}</p>
+        <p><strong>Amount:</strong> {{.Order.Payment.Amount}}</p>
+        <p><strong>Payment date time:</strong> {{.Order.Payment.PaymentDateTime}}</p>
+        <p><strong>Bank:</strong> {{.Order.Payment.Bank}}</p>
+        <p><strong>Delivery Cost:</strong> {{.Order.Payment.DeliveryCost}}</p>
+        <p><strong>Goods Total:</strong> {{.Order.Payment.GoodsTotal}}</p>
+        <p><strong>Custom Fee:</strong> {{.Order.Payment.CustomFee}}</p>
+        <h2>Items</h2>
+        <ul>
+            {{range .Order.Items}}
+                <li>
+                    <strong>Chrt id:</strong> {{.ChrtId}}<br>
+                    <strong>Price:</strong> {{.Price}}<br>
+                    <strong>Rid:</strong> {{.Rid}}<br>
+                    <strong>Name:</strong> {{.Name}}<br>
+                    <strong>Sale:</strong> {{.Sale}}<br>
+                    <strong>Size:</strong> {{.Size}}<br>
+                    <strong>Total Price:</strong> {{.TotalPrice}}<br>
+                    <strong>Nm id:</strong> {{.NmId}}<br>
+                    <strong>Brand:</strong> {{.Brand}}<br>
+                    <strong>Status:</strong> {{.Status}}<br>
+                </li>
+            {{end}}
+        </ul>
+    {{end}}
+    <a href="/">Вернуться к выбору заказа</a>
+</body>
+</html>

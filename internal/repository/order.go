@@ -34,24 +34,23 @@ func NewOrderCache() *OrderCache {
 func (o *OrderCache) Add(data models.Order, ttl ...time.Duration) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
+	
+	ttlDuration := 12 * time.Hour
+	if ttl != nil {
+		ttlDuration = ttl[0]
+	}
+
 	if order, exists := o.Orders[data.OrderUid]; exists {
 		order.timer.Stop()
-	} else {
-		var ttlDuration time.Duration
-		if ttl == nil {
-			ttlDuration = 12 * time.Hour
-		} else {
-			ttlDuration = ttl[0]
-		}
+	}
 
-		timer := time.AfterFunc(ttlDuration, func() {
-			o.Invalidate(data.OrderUid)
+	timer := time.AfterFunc(ttlDuration, func() {
+		o.Invalidate(data.OrderUid)
+	})
 
-		})
-		o.Orders[data.OrderUid] = &OrderCacheEntry{
-			Order: data,
-			timer: timer,
-		}
+	o.Orders[data.OrderUid] = &OrderCacheEntry{
+		Order: data,
+		timer: timer,
 	}
 }
 
@@ -106,10 +105,9 @@ func (s *OrderRepository) FindByUid(ctx context.Context, orderUid string) (*mode
         return nil, fmt.Errorf("OrderRepository.FindByUid: %w", err)
     }
 
-    err = json.Unmarshal(jsonData, &order)
-    if err != nil {
+    if err = json.Unmarshal(jsonData, &order); err != nil {
         return nil, fmt.Errorf("OrderRepository.FindByUid: %w", err)
-    }
+	}
 
     return &order, nil
 }
