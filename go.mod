@@ -1,4 +1,4 @@
-module dockertest
+module wbzerolevel
 
 go 1.23.0
 

@@ -1,8 +1,6 @@
 package models
 
 type Delivery struct {
-	Id int
-	OrderUid string 
 	Name    string `json:"name"`
 	Phone   string `json:"phone"`
 	Zip     string `json:"zip"`

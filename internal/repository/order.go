@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"dockertest/internal/models"
+	"wbzerolevel/internal/models"
 	"encoding/json"
 	"fmt"
 	"sync"

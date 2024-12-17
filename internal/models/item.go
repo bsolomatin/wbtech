@@ -1,8 +1,7 @@
 package models
 
 type Item struct {
-	ChrtId      int `json:"chrt_id"`
-	OrderUid    string
+	ChrtId      int     `json:"chrt_id"`
 	TrackNumber string  `json:"track_number"`
 	Price       float64 `json:"price"`
 	Rid         string  `json:"rid"`

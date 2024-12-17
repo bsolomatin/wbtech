@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"dockertest/internal/models"
-	"dockertest/pkg/logger"
+	"wbzerolevel/internal/models"
+	"wbzerolevel/pkg/logger"
 	"encoding/json"
 	"fmt"
 	"regexp"

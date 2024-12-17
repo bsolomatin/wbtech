@@ -2,13 +2,12 @@ package transport
 
 import (
 	"context"
-	"dockertest/internal/models"
-	"dockertest/internal/repository"
-	"dockertest/pkg/logger"
+	"wbzerolevel/internal/models"
+	"wbzerolevel/internal/repository"
+	"wbzerolevel/pkg/logger"
 	"fmt"
 	"html/template"
 	"net/http"
-
 	"go.uber.org/zap"
 )
 

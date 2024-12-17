@@ -2,21 +2,21 @@ package main
 
 import (
 	"context"
-	"dockertest/internal/config"
-	"dockertest/internal/repository"
-	"dockertest/internal/service"
-	"dockertest/internal/transport"
-	"dockertest/internal/transport/kafka"
-	"dockertest/pkg/db"
-	"dockertest/pkg/logger"
 	"fmt"
+	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
-	"time"
-	"github.com/gorilla/mux"
-	"go.uber.org/zap"
+	"wbzerolevel/internal/config"
+	"wbzerolevel/internal/repository"
+	"wbzerolevel/internal/service"
+	"wbzerolevel/internal/transport"
+	"wbzerolevel/internal/transport/kafka"
+	"wbzerolevel/internal/transport/middleware"
+	"wbzerolevel/pkg/db"
+	"wbzerolevel/pkg/logger"
 )
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 	transp := transport.NewOrderTransport(srv, mainLogger)
 
 	router := mux.NewRouter()
-	router.Use(loggingMiddleware(mainLogger))
+	router.Use(middleware.LoggingMiddleware(mainLogger))
 	router.HandleFunc("/", transp.HomeTemplateHandler).Methods("GET")
 	router.HandleFunc("/orders", transp.OrderTemplateHandler).Methods("GET")
 
@@ -62,16 +62,4 @@ func main() {
 	<-graceSh
 
 	mainLogger.Info(ctx, "Server stopped")
-}
-
-func loggingMiddleware(logger logger.Logger) mux.MiddlewareFunc {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			start := time.Now()
-			logger.Info(r.Context(), "Request received", zap.String("Method", r.Method), zap.String("URL", r.URL.Path))
-			next.ServeHTTP(w, r)
-			duration := time.Since(start)
-			logger.Info(r.Context(), "Request processed", zap.String("Method", r.Method), zap.String("URL", r.URL.Path), zap.String("Processed time", duration.String()))
-		})
-	}
 }

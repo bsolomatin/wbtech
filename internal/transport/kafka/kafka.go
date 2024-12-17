@@ -2,8 +2,8 @@ package kafka
 
 import (
 	"context"
-	"dockertest/internal/config"
-	"dockertest/pkg/logger"
+	"wbzerolevel/internal/config"
+	"wbzerolevel/pkg/logger"
 	"fmt"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
