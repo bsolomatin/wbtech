@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
-	"dockertest/internal/models"
+	"wbzerolevel/internal/models"
 	"math/rand"
 	"time"
 )
