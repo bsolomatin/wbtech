@@ -2,6 +2,7 @@ services:
   app:
     image: dockertest:local
     container_name: app_container
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile

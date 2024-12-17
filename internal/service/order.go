@@ -76,12 +76,8 @@ func Validate(order models.Order) error {
 }
 
 func ValidateOrder(order models.Order) error {
-	if order.OrderUid == "" || len(order.OrderUid) < 15 {
+	if order.OrderUid == "" {
         return fmt.Errorf("invalid order_uid")
-    }
-
-	if order.TrackNumber == "" || len(order.TrackNumber) < 15 {
-        return fmt.Errorf("invalid track_number")
     }
 
 	if order.CustomerId == "" {
